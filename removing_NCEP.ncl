@@ -17,20 +17,19 @@ begin
         iplot=1
         lev=850       ; level for relocating
         yrStart=1979
-        yrEnd=2015
+        yrEnd=2016
         mostart=6
         monthEnd=10
         rad = 12 ; KBR:12 degree; Gaus:500 km
-        var = "vwnd"
 
         diri     = "./"
         diro     = "./"
-        fili     = "Allstorms.ibtracs_all.v03r09.nc"
+        fili     = "/Users/fengtao/Working/Data_proc/ibt/Allstorms.ibtracs_all.v03r10.nc"
 
         ;==========================================================
         print ("Start year: "+ yrStart)
         print ("End year: "+ yrEnd  )
-        f        = addfile (diri+fili, "r")
+        f        = addfile (fili, "r")
         names = getfilevarnames(f)
         ;print(names)
 
@@ -82,6 +81,7 @@ begin
                 .and.nature1d.ne.3 \              ; No disturbances
                 .and.nature1d.ne.2)               ; No extratropical
                 numTcs=dimsizes(tcind)
+                print("============================================================")
                 print("Tc record Numbers:" + numTcs)
                 print("maxTime = " + maxTime)
                 print("minTime = " + minTime)
@@ -115,6 +115,8 @@ begin
                 ftimebnds1= infile1->time_bnds
                 vwnd    = short2flt(infile1->vwnd)
                 vwnd    = vwnd (:,:,::-1,:)
+                tempu=infile->uwnd
+                tempv=infile1->vwnd
 
                 ; var initialization
                 u_dis=uwnd
@@ -148,15 +150,30 @@ begin
                                 if(iplot.eq.1) then
                                         plotTcRemoving(uwnd({time_jul},{lev},:,:),vwnd({time_jul},{lev},:,:),u_bas({time_jul},{lev},:,:),v_bas({time_jul},{lev},:,:),u_dis({time_jul},{lev},:,:),v_dis({time_jul},{lev},:,:),u_env({time_jul},{lev},:,:),v_env({time_jul},{lev},:,:),u_tc({time_jul},{lev},:,:),v_tc({time_jul},{lev},:,:),time_utc,centerLatRel,centerLonRel,latyr(i),lonyr(i),plat,plon)
                                 end if
-                                uwnd=u_env
-                                vwnd=v_env
+
+                                outfile2 = "info."+time_utc+"_"+latyr(i)+"_"+lonyr(i)+".nc"
+                                system("/bin/rm -f " + outfile2)   ; remove any pre-existing file
+                                ncdf2     = addfile(outfile2 ,"c")  ; open output netCDF file
+                                ncdf2->clat = centerLatRel
+                                ncdf2->clon = centerLonRel
+                                ncdf2->plat = plat
+                                ncdf2->plon = plon
+                                
                                 delete(time_utc)
                                 delete(time_jul)
                         end if  ; for ncep only
                 end do
 
                 ; output to nc file
+                copy_VarMeta(uwnd,u_env)
+                copy_VarMeta(vwnd,v_env)
+                u_env = u_env(:,:,::-1,:)
+                v_env = v_env(:,:,::-1,:)
+                flat = flat(::-1)
+                
                 varoutshort=floattoshort(u_env(:,:,:,:))
+                copy_VarMeta(tempu,varoutshort)
+                printVarSummary(varoutshort)
                 outfile = outdir+"/uwnd."+yr+".nc"
                 system("/bin/rm -f " + outfile)   ; remove any pre-existing file
                 ncdf     = addfile(outfile ,"c")  ; open output netCDF file
@@ -170,8 +187,9 @@ begin
                 ncdf->uwnd  = varoutshort
 
                 varoutshort2=floattoshort(v_env(:,:,:,:))
-                outfile1 = outdir+"/uwnd."+yr+".nc"
-                system("/bin/rm -f " + outfile)   ; remove any pre-existing file
+                copy_VarMeta(tempv,varoutshort2)
+                outfile1 = outdir+"/vwnd."+yr+".nc"
+                system("/bin/rm -f " + outfile1)   ; remove any pre-existing file
                 ncdf1     = addfile(outfile1 ,"c")  ; open output netCDF file
 
                 filedimdef(ncdf1,"time",-1,True)
@@ -182,9 +200,9 @@ begin
                 ncdf1->time_bnds = ftimebnds
                 ncdf1->vwnd   = varoutshort2
 
+
+
                ; delete([/tcind,tcsn,numobs,lat,lon,time,nature,filename,infile,flevel,flat,flon,ftime,ftimebnds,numTcs,varoutshort,varoutshort2,ftime1,uwnd,vwnd,latyr,lonyr,u_bas,v_bas,u_dis,v_dis,u_env,v_env,u_tc,v_tc,plat,plon/])
-               delete([/varoutshort,varoutshort2,tcind,timeyr,latyr,lonyr,ftime,ftimebnds,uwnd,ftime1,ftimebnds1,vwnd,u_dis,v_dis,u_bas,v_bas,u_env,v_env,u_tc,v_tc,ftimehr/])
+               delete([/tempu,tempv,varoutshort,varoutshort2,tcind,timeyr,latyr,lonyr,ftime,ftimebnds,uwnd,ftime1,ftimebnds1,vwnd,u_dis,v_dis,u_bas,v_bas,u_env,v_env,u_tc,v_tc,ftimehr/])
         end do
-        ystartn1=yrStart-1
-        system("rm -f "+outdir+"/"+var+"."+ystartn1+".nc")
 end

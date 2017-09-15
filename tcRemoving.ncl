@@ -540,8 +540,8 @@ begin
         end do
 
         print("Set variables inside the boundary to 0")
-        u_none(:,{centerLatRel},{centerLatRel}) = 0
-        v_none(:,{centerLatRel},{centerLatRel}) = 0
+        u_none(:,{centerLatRel},{centerLonRel}) = 0
+        v_none(:,{centerLatRel},{centerLonRel}) = 0
 
         ; commented because tang wind will be not used
         ;tanWspdPolEnv=tanWspdPol2d

@@ -8,7 +8,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
-load "./tcRemoving.ncl"
+load "../../tcRemovingKBR/tcRemoving.ncl"
 
 
 ;==========================================================
@@ -165,13 +165,16 @@ begin
                 end do
 
                 ; output to nc file
-                copy_VarMeta(uwnd,u_env)
-                copy_VarMeta(vwnd,v_env)
+                copy_VarCoords(uwnd,u_env)
+                copy_VarCoords(vwnd,v_env)
                 u_env = u_env(:,:,::-1,:)
                 v_env = v_env(:,:,::-1,:)
                 flat = flat(::-1)
                 
-                varoutshort=floattoshort(u_env(:,:,:,:))
+                opt=True
+                opt@scale_factor = tempu@scale_factor
+                opt@add_offset   = tempu@add_offset
+                varoutshort=pack_values(u_env,"short",opt)
                 copy_VarMeta(tempu,varoutshort)
                 printVarSummary(varoutshort)
                 outfile = outdir+"/uwnd."+yr+".nc"
@@ -186,7 +189,7 @@ begin
                 ncdf->time_bnds = ftimebnds
                 ncdf->uwnd  = varoutshort
 
-                varoutshort2=floattoshort(v_env(:,:,:,:))
+                varoutshort2=pack_values(v_env,"short",opt)
                 copy_VarMeta(tempv,varoutshort2)
                 outfile1 = outdir+"/vwnd."+yr+".nc"
                 system("/bin/rm -f " + outfile1)   ; remove any pre-existing file

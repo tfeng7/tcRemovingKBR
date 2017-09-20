@@ -131,6 +131,8 @@ begin
                 ftimehr   = cd_convert( ftime, "hours since 1800-01-01 00:00") ; convert date
                 print("File:"+filename)
                 print("Total Tcs: " + numTcs)
+                uwndin = u_env
+                vwndin = v_env
 
                 do i=0,numTcs-1
                         time_char = cd_calendar(timeyr(i), 0)
@@ -145,7 +147,9 @@ begin
 
                                 print("Time:"+ time_utc + " " + time_jul +" LatLon: "+latyr(i)+ " "+lonyr(i)) 
                                 ;varout({time_days(j)},:,:,:)=removeTcGaus(varin({time_days(j)},:,:,:),flat,flon,lat(i,j),lon(i,j),rad)
-                                removeTcKBR(uwnd({time_jul},:,:,:),vwnd({time_jul},:,:,:),latyr(i),lonyr(i),rad,lev,u_bas({time_jul},:,:,:),v_bas({time_jul},:,:,:),u_dis({time_jul},:,:,:),v_dis({time_jul},:,:,:),u_env({time_jul},:,:,:),v_env({time_jul},:,:,:),u_tc({time_jul},:,:,:),v_tc({time_jul},:,:,:),centerLatRel,centerLonRel,plat,plon)
+                                removeTcKBR(uwndin({time_jul},:,:,:),vwndin({time_jul},:,:,:),latyr(i),lonyr(i),rad,lev,u_bas({time_jul},:,:,:),v_bas({time_jul},:,:,:),u_dis({time_jul},:,:,:),v_dis({time_jul},:,:,:),u_env({time_jul},:,:,:),v_env({time_jul},:,:,:),u_tc({time_jul},:,:,:),v_tc({time_jul},:,:,:),centerLatRel,centerLonRel,plat,plon)
+                                uwndin({time_jul},:,:,:) = u_env({time_jul},:,:,:)
+                                vwndin({time_jul},:,:,:) = v_env({time_jul},:,:,:)
 
                                 if(iplot.eq.1) then
                                         plotTcRemoving(uwnd({time_jul},{lev},:,:),vwnd({time_jul},{lev},:,:),u_bas({time_jul},{lev},:,:),v_bas({time_jul},{lev},:,:),u_dis({time_jul},{lev},:,:),v_dis({time_jul},{lev},:,:),u_env({time_jul},{lev},:,:),v_env({time_jul},{lev},:,:),u_tc({time_jul},{lev},:,:),v_tc({time_jul},{lev},:,:),time_utc,centerLatRel,centerLonRel,latyr(i),lonyr(i),plat,plon)

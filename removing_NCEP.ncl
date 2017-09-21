@@ -155,13 +155,7 @@ begin
                                         plotTcRemoving(uwnd({time_jul},{lev},:,:),vwnd({time_jul},{lev},:,:),u_bas({time_jul},{lev},:,:),v_bas({time_jul},{lev},:,:),u_dis({time_jul},{lev},:,:),v_dis({time_jul},{lev},:,:),u_env({time_jul},{lev},:,:),v_env({time_jul},{lev},:,:),u_tc({time_jul},{lev},:,:),v_tc({time_jul},{lev},:,:),time_utc,centerLatRel,centerLonRel,latyr(i),lonyr(i),plat,plon)
                                 end if
 
-                                outfile2 = "info."+time_utc+"_"+latyr(i)+"_"+lonyr(i)+".nc"
-                                system("/bin/rm -f " + outfile2)   ; remove any pre-existing file
-                                ncdf2     = addfile(outfile2 ,"c")  ; open output netCDF file
-                                ncdf2->clat = centerLatRel
-                                ncdf2->clon = centerLonRel
-                                ncdf2->plat = plat
-                                ncdf2->plon = plon
+                                dumpInfo(time_utc,latyr(i),lonyr(i),plat,plon)
                                 
                                 delete(time_utc)
                                 delete(time_jul)
@@ -210,6 +204,6 @@ begin
 
 
                ; delete([/tcind,tcsn,numobs,lat,lon,time,nature,filename,infile,flevel,flat,flon,ftime,ftimebnds,numTcs,varoutshort,varoutshort2,ftime1,uwnd,vwnd,latyr,lonyr,u_bas,v_bas,u_dis,v_dis,u_env,v_env,u_tc,v_tc,plat,plon/])
-               delete([/tempu,tempv,varoutshort,varoutshort2,tcind,timeyr,latyr,lonyr,ftime,ftimebnds,uwnd,ftime1,ftimebnds1,vwnd,u_dis,v_dis,u_bas,v_bas,u_env,v_env,u_tc,v_tc,ftimehr/])
+               delete([/uwndin,vwndin,tempu,tempv,varoutshort,varoutshort2,tcind,timeyr,latyr,lonyr,ftime,ftimebnds,uwnd,ftime1,ftimebnds1,vwnd,u_dis,v_dis,u_bas,v_bas,u_env,v_env,u_tc,v_tc,ftimehr/])
         end do
 end
